@@ -11,10 +11,12 @@ router.get('/', function(req, res, next) {
 
 module.exports = router;
 
-router.post('/api/v1/todos', (req, res, next) => {
+router.post('/api/v1/usuario', (req, res, next) => {
   const results = [];
   // Grab data from http request
-  const data = {text: req.body.text, complete: false};
+  const data = {nickname: req.body.nickname, nombre: req.boy.nombre,
+     apellido: req.body.apellido, email: req.body.email,
+     password: req.body.password, celular: req.body.celular, owns_car: req.body.owns_car};
   // Get a Postgres client from the connection pool
   pg.connect(connectionString, (err, client, done) => {
     // Handle connection errors
@@ -24,10 +26,121 @@ router.post('/api/v1/todos', (req, res, next) => {
       return res.status(500).json({success: false, data: err});
     }
     // SQL Query > Insert Data
-    client.query('INSERT INTO items(text, complete) values($1, $2)',
-    [data.text, data.complete]);
+    client.query('INSERT INTO usuario(nickname, nombre, apellido, email, password, foto, celular, owns_car) values($1, $2, $3, $4, $5, $6, $7, $8)',
+    [data.nickname, data.nombre, data.apellido, data.email,
+    data.password, data.foto, data.celular, data.owns_car]);
     // SQL Query > Select Data
-    const query = client.query('SELECT * FROM items ORDER BY id ASC');
+    const query = client.query('SELECT * FROM usuario ORDER BY nickname ASC');
+    // Stream results back one row at a time
+    query.on('row', (row) => {
+      results.push(row);
+    });
+    // After all data is returned, close connection and return results
+    query.on('end', () => {
+      done();
+      return res.json(results);
+    });
+  });
+});
+
+router.post('/api/v1/viajes', (req, res, next) => {
+  const results = [];
+  // Grab data from http request
+  const data = { fecha_hora:req.body.fecha_hora,
+    origen: req.body.origen, destino: req.body.destino,
+     precio_unitario: req.body.precio_unitario, puestos: req.body.puestos};
+  // Get a Postgres client from the connection pool
+  pg.connect(connectionString, (err, client, done) => {
+    // Handle connection errors
+    if(err) {
+      done();
+      console.log(err);
+      return res.status(500).json({success: false, data: err});
+    }
+    // SQL Query > Insert Data
+    client.query('INSERT INTO viaje(fecha_hora, origen, destino, precio_unitario, puestos) values($1, $2, $3, $4, $5)',
+    [ data.fecha_hora, data.origen, data.destino, data.precio_unitario, data.puestos]);
+    // SQL Query > Select Data
+    const query = client.query('SELECT * FROM viaje ORDER BY id_viaje ASC');
+    // Stream results back one row at a time
+    query.on('row', (row) => {
+      results.push(row);
+    });
+    // After all data is returned, close connection and return results
+    query.on('end', () => {
+      done();
+      return res.json(results);
+    });
+  });
+});
+router.get('/api/v1/viajes', (req, res, next) => {
+  console.log
+  const results = [];
+  // Get a Postgres client from the connection pool
+  pg.connect(connectionString, (err, client, done) => {
+    // Handle connection errors
+    if(err) {
+      done();
+      console.log(err);
+      return res.status(500).json({success: false, data: err});
+    }
+    // SQL Query > Select Data
+    const query = client.query('SELECT * FROM viaje ORDER BY id_viaje ASC;');
+    // Stream results back one row at a time
+    query.on('row', (row) => {
+      results.push(row);
+    });
+    // After all data is returned, close connection and return results
+    query.on('end', () => {
+      done();
+      return res.json(results);
+    });
+  });
+});
+
+router.post('/api/v1/SolViajes', (req, res, next) => {
+  const results = [];
+  // Grab data from http request
+  const data = { fecha_hora:req.body.fecha_hora,
+    origen: req.body.origen, destino: req.body.destino,
+     precio_unitario: req.body.precio_unitario, puestos: req.body.puestos};
+  // Get a Postgres client from the connection pool
+  pg.connect(connectionString, (err, client, done) => {
+    // Handle connection errors
+    if(err) {
+      done();
+      console.log(err);
+      return res.status(500).json({success: false, data: err});
+    }
+    // SQL Query > Insert Data
+    client.query('INSERT INTO viaje(fecha_hora, origen, destino, precio_unitario, puestos) values($1, $2, $3, $4, $5)',
+    [ data.fecha_hora, data.origen, data.destino, data.precio_unitario, data.puestos]);
+    // SQL Query > Select Data
+    const query = client.query('SELECT * FROM viaje ORDER BY id_viaje ASC');
+    // Stream results back one row at a time
+    query.on('row', (row) => {
+      results.push(row);
+    });
+    // After all data is returned, close connection and return results
+    query.on('end', () => {
+      done();
+      return res.json(results);
+    });
+  });
+});
+router.get('/api/v1/SolViajes', (req, res, next) => {
+  console.log
+  const results = [];
+  // Get a Postgres client from the connection pool
+  pg.connect(connectionString, (err, client, done) => {
+    // Handle connection errors
+    if(err) {
+      done();
+      console.log(err);
+      return res.status(500).json({success: false, data: err});
+    }
+    // SQL Query > Select Data
+    const query = client.query('SELECT * FROM viaje where aceptado = false ORDER BY id_viaje ASC;');
     // Stream results back one row at a time
     query.on('row', (row) => {
       results.push(row);
